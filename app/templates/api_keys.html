@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Key Management</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>API Key Management</h1>
+    <form method="post">
+        <label>Provider:</label>
+        <select name="provider">
+            <option value="ollama">Ollama</option>
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+        </select>
+        <label>API Key:</label>
+        <input type="text" name="key" required>
+        <button type="submit">Save</button>
+    </form>
+    <h2>Current Keys</h2>
+    <ul>
+        {% for provider, key in api_keys.items() %}
+        <li>{{ provider }}: {{ key }}</li>
+        {% endfor %}
+    </ul>
+    <a href="/">Back to Dashboard</a>
+</body>
+</html>

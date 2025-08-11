@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Corpus Visualization</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Corpus Visualization</h1>
+    <div id="viz-data"></div>
+    <script>
+        const data = {{ data|safe }};
+        document.getElementById('viz-data').innerText = JSON.stringify(data, null, 2);
+    </script>
+    <a href="/">Back to Dashboard</a>
+</body>
+</html>

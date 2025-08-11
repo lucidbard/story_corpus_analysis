@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Story Corpus Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Story Corpus Analysis</h1>
+    <nav>
+        <a href="/api_keys">API Keys</a> |
+        <a href="/visualization">Visualization</a>
+    </nav>
+    <section>
+        <h2>Upload Corpus</h2>
+        <form action="/upload_corpus" method="post" enctype="multipart/form-data">
+            <input type="file" name="corpus_file" required>
+            <button type="submit">Upload</button>
+        </form>
+    </section>
+    <section>
+        <h2>Process Corpus</h2>
+        <form action="/process_corpus" method="post">
+            <label>Provider:</label>
+            <select name="provider">
+                <option value="ollama">Ollama</option>
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+            </select>
+            <label>Model:</label>
+            <input type="text" name="model" value="gpt-oss-32k">
+            <button type="submit">Process</button>
+        </form>
+    </section>
+</body>
+</html>
