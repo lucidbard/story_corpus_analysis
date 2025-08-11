@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby-Sitters Club Scene Analysis Dashboard</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        select, input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 300px;
+            z-index: 1000;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .node {
+            stroke: #fff;
+            stroke-width: 1.5px;
+            cursor: pointer;
+        }
+
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+
+        .bar {
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        .axis text {
+            font-size: 12px;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .scene-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .scene-text {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 Baby-Sitters Club Scene Analysis</h1>
+        <p>Interactive visualization of 49 analyzed scenes using ollama:gpt-oss:latest</p>
+    </div>
+
+    <div class="container">
+        <!-- Statistics Overview -->
+        <div class="card full-width">
+            <div class="card-title">📊 Dataset Overview</div>
+            <div class="stats-grid" id="stats-container">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <!-- Goal Categories Chart -->
+            <div class="card">
+                <div class="card-title">🎯 Goal Categories Distribution</div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Sort by:</label>
+                        <select id="goal-sort">
+                            <option value="count">Count</option>
+                            <option value="alphabetical">Alphabetical</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="goals-chart"></div>
+                <div class="legend" id="goals-legend"></div>
+            </div>
+
+            <!-- Scene Length Distribution -->
+            <div class="card">
+                <div class="card-title">📏 Scene Length Distribution</div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Bins:</label>
+                        <input type="range" id="bins-slider" min="5" max="20" value="10">
+                        <span id="bins-value">10</span>
+                    </div>
+                </div>
+                <div id="length-chart"></div>
+            </div>
+
+            <!-- Goals vs Conflicts Scatter -->
+            <div class="card">
+                <div class="card-title">⚡ Goals vs Conflicts by Scene</div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Size by:</label>
+                        <select id="scatter-size">
+                            <option value="length">Scene Length</option>
+                            <option value="constant">Equal Size</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="scatter-chart"></div>
+            </div>
+
+            <!-- Network Graph -->
+            <div class="card">
+                <div class="card-title">🕸️ Character-Goal Network</div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Filter category:</label>
+                        <select id="network-filter">
+                            <option value="all">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Force strength:</label>
+                        <input type="range" id="force-slider" min="10" max="100" value="50">
+                    </div>
+                </div>
+                <div id="network-chart"></div>
+            </div>
+
+            <!-- Scene Details Panel -->
+            <div class="card full-width">
+                <div class="card-title">🔍 Scene Details</div>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Select scene:</label>
+                        <select id="scene-selector">
+                            <option value="">Choose a scene...</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="scene-details"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Global variables
+        let data = null;
+        let tooltip = d3.select("#tooltip");
+
+        // Color scales
+        const colorScale = d3.scaleOrdinal()
+            .domain(['academic', 'social', 'family', 'creative', 'babysitting', 'other', 'unknown'])
+            .range(['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#95a5a6', '#34495e']);
+
+        // Load data and initialize visualizations
+        d3.json("scene_analysis_visualization.json").then(function(loadedData) {
+            data = loadedData;
+            console.log("Loaded data:", data);
+            
+            initializeStats();
+            initializeControls();
+            updateGoalsChart();
+            updateLengthChart();
+            updateScatterChart();
+            updateNetworkChart();
+            updateSceneDetails();
+        }).catch(function(error) {
+            console.error("Error loading data:", error);
+            d3.select("body").append("div")
+                .style("text-align", "center")
+                .style("padding", "50px")
+                .style("color", "red")
+                .html("<h2>Error loading data file</h2><p>Please make sure 'scene_analysis_visualization.json' is in the same directory as this HTML file.</p>");
+        });
+
+        function initializeStats() {
+            const stats = [
+                { label: "Total Scenes", value: data.scenes.length, color: "#3498db" },
+                { label: "Goals Identified", value: data.goals.length, color: "#2ecc71" },
+                { label: "Conflicts Found", value: data.conflicts.length, color: "#e74c3c" },
+                { label: "Goal Categories", value: Object.keys(data.categories.goals).length, color: "#f39c12" },
+                { label: "Avg Goals/Scene", value: (data.goals.length / data.scenes.length).toFixed(1), color: "#9b59b6" },
+                { label: "Avg Conflicts/Scene", value: (data.conflicts.length / data.scenes.length).toFixed(1), color: "#e67e22" }
+            ];
+
+            const statsContainer = d3.select("#stats-container");
+            statsContainer.selectAll(".stat-item")
+                .data(stats)
+                .enter()
+                .append("div")
+                .attr("class", "stat-item")
+                .style("background", d => `linear-gradient(135deg, ${d.color}, ${d3.color(d.color).darker(1)})`)
+                .html(d => `<span class="stat-number">${d.value}</span><span class="stat-label">${d.label}</span>`);
+        }
+
+        function initializeControls() {
+            // Populate scene selector
+            const sceneSelector = d3.select("#scene-selector");
+            sceneSelector.selectAll("option.scene-option")
+                .data(data.scenes)
+                .enter()
+                .append("option")
+                .attr("class", "scene-option")
+                .attr("value", d => d.id)
+                .text(d => `${d.id} (${d.goals_count} goals, ${d.conflicts_count} conflicts)`);
+
+            // Populate network filter
+            const networkFilter = d3.select("#network-filter");
+            const categories = Object.keys(data.categories.goals);
+            networkFilter.selectAll("option.category-option")
+                .data(categories)
+                .enter()
+                .append("option")
+                .attr("class", "category-option")
+                .attr("value", d => d)
+                .text(d => d.charAt(0).toUpperCase() + d.slice(1));
+
+            // Add event listeners
+            d3.select("#goal-sort").on("change", updateGoalsChart);
+            d3.select("#bins-slider").on("input", function() {
+                d3.select("#bins-value").text(this.value);
+                updateLengthChart();
+            });
+            d3.select("#scatter-size").on("change", updateScatterChart);
+            d3.select("#network-filter").on("change", updateNetworkChart);
+            d3.select("#force-slider").on("input", updateNetworkChart);
+            d3.select("#scene-selector").on("change", updateSceneDetails);
+        }
+
+        function updateGoalsChart() {
+            const container = d3.select("#goals-chart");
+            container.selectAll("*").remove();
+
+            const sortBy = d3.select("#goal-sort").node().value;
+            let goalData = Object.entries(data.categories.goals);
+            
+            if (sortBy === "alphabetical") {
+                goalData.sort((a, b) => a[0].localeCompare(b[0]));
+            } else {
+                goalData.sort((a, b) => b[1] - a[1]);
+            }
+
+            const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+            const width = 350 - margin.left - margin.right;
+            const height = 250 - margin.bottom - margin.top;
+
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleBand()
+                .domain(goalData.map(d => d[0]))
+                .range([0, width])
+                .padding(0.1);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(goalData, d => d[1])])
+                .range([height, 0]);
+
+            svg.selectAll(".bar")
+                .data(goalData)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d[0]))
+                .attr("width", x.bandwidth())
+                .attr("y", d => y(d[1]))
+                .attr("height", d => height - y(d[1]))
+                .attr("fill", d => colorScale(d[0]))
+                .on("mouseover", function(event, d) {
+                    showTooltip(event, `<strong>${d[0]}</strong><br>Count: ${d[1]}<br>Percentage: ${(d[1]/data.goals.length*100).toFixed(1)}%`);
+                })
+                .on("mouseout", hideTooltip);
+
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", ".15em")
+                .attr("transform", "rotate(-45)");
+
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y));
+
+            // Update legend
+            const legend = d3.select("#goals-legend");
+            legend.selectAll("*").remove();
+            
+            const legendItems = legend.selectAll(".legend-item")
+                .data(goalData)
+                .enter()
+                .append("div")
+                .attr("class", "legend-item");
+
+            legendItems.append("div")
+                .attr("class", "legend-color")
+                .style("background-color", d => colorScale(d[0]));
+
+            legendItems.append("span")
+                .text(d => `${d[0]} (${d[1]})`);
+        }
+
+        function updateLengthChart() {
+            const container = d3.select("#length-chart");
+            container.selectAll("*").remove();
+
+            const bins = +d3.select("#bins-slider").node().value;
+            const lengths = data.scenes.map(d => d.scene_length);
+
+            const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+            const width = 350 - margin.left - margin.right;
+            const height = 250 - margin.bottom - margin.top;
+
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain(d3.extent(lengths))
+                .range([0, width]);
+
+            const histogram = d3.histogram()
+                .value(d => d)
+                .domain(x.domain())
+                .thresholds(bins);
+
+            const bins_data = histogram(lengths);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(bins_data, d => d.length)])
+                .range([height, 0]);
+
+            svg.selectAll(".bar")
+                .data(bins_data)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", d => x(d.x0))
+                .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+                .attr("y", d => y(d.length))
+                .attr("height", d => height - y(d.length))
+                .attr("fill", "#74b9ff")
+                .on("mouseover", function(event, d) {
+                    showTooltip(event, `<strong>Length: ${Math.round(d.x0)}-${Math.round(d.x1)}</strong><br>Scenes: ${d.length}`);
+                })
+                .on("mouseout", hideTooltip);
+
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y));
+        }
+
+        function updateScatterChart() {
+            const container = d3.select("#scatter-chart");
+            container.selectAll("*").remove();
+
+            const sizeBy = d3.select("#scatter-size").node().value;
+
+            const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+            const width = 350 - margin.left - margin.right;
+            const height = 250 - margin.bottom - margin.top;
+
+            const svg = container.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data.scenes, d => d.goals_count)])
+                .range([0, width]);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data.scenes, d => d.conflicts_count)])
+                .range([height, 0]);
+
+            const size = sizeBy === "length" 
+                ? d3.scaleSqrt()
+                    .domain(d3.extent(data.scenes, d => d.scene_length))
+                    .range([3, 15])
+                : () => 6;
+
+            svg.selectAll(".dot")
+                .data(data.scenes)
+                .enter()
+                .append("circle")
+                .attr("class", "dot")
+                .attr("cx", d => x(d.goals_count))
+                .attr("cy", d => y(d.conflicts_count))
+                .attr("r", d => sizeBy === "length" ? size(d.scene_length) : size())
+                .attr("fill", "#e74c3c")
+                .attr("opacity", 0.7)
+                .on("mouseover", function(event, d) {
+                    showTooltip(event, `<strong>${d.id}</strong><br>Goals: ${d.goals_count}<br>Conflicts: ${d.conflicts_count}<br>Length: ${d.scene_length} chars`);
+                })
+                .on("mouseout", hideTooltip)
+                .on("click", function(event, d) {
+                    d3.select("#scene-selector").node().value = d.id;
+                    updateSceneDetails();
+                });
+
+            svg.append("g")
+                .attr("class", "axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x));
+
+            svg.append("g")
+                .attr("class", "axis")
+                .call(d3.axisLeft(y));
+
+            // Add axis labels
+            svg.append("text")
+                .attr("transform", `translate(${width/2}, ${height + 35})`)
+                .style("text-anchor", "middle")
+                .text("Number of Goals");
+
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("Number of Conflicts");
+        }
+
+        function updateNetworkChart() {
+            const container = d3.select("#network-chart");
+            container.selectAll("*").remove();
+
+            const filterCategory = d3.select("#network-filter").node().value;
+            const forceStrength = +d3.select("#force-slider").node().value;
+
+            // Filter goals by category
+            let filteredGoals = data.goals;
+            if (filterCategory !== "all") {
+                filteredGoals = data.goals.filter(g => g.category === filterCategory);
+            }
+
+            // Create nodes and links
+            const characters = [...new Set(filteredGoals.map(g => g.character))];
+            const categories = [...new Set(filteredGoals.map(g => g.category))];
+
+            const nodes = [
+                ...characters.map(c => ({ id: c, type: "character", group: "character" })),
+                ...categories.map(c => ({ id: c, type: "category", group: "category" }))
+            ];
+
+            const links = filteredGoals.map(g => ({
+                source: g.character,
+                target: g.category,
+                scene_id: g.scene_id
+            }));
+
+            const width = 350;
+            const height = 250;
+
+            const svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(50))
+                .force("charge", d3.forceManyBody().strength(-forceStrength))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(links)
+                .enter()
+                .append("line")
+                .attr("class", "link")
+                .attr("stroke-width", 1);
+
+            const node = svg.append("g")
+                .selectAll("circle")
+                .data(nodes)
+                .enter()
+                .append("circle")
+                .attr("class", "node")
+                .attr("r", d => d.type === "character" ? 8 : 12)
+                .attr("fill", d => d.type === "character" ? "#3498db" : colorScale(d.id))
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended))
+                .on("mouseover", function(event, d) {
+                    showTooltip(event, `<strong>${d.id}</strong><br>Type: ${d.type}`);
+                })
+                .on("mouseout", hideTooltip);
+
+            const label = svg.append("g")
+                .selectAll("text")
+                .data(nodes)
+                .enter()
+                .append("text")
+                .text(d => d.id)
+                .style("font-size", "10px")
+                .style("text-anchor", "middle")
+                .style("pointer-events", "none");
+
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+
+                label
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y + 4);
+            });
+
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        function updateSceneDetails() {
+            const container = d3.select("#scene-details");
+            const selectedSceneId = d3.select("#scene-selector").node().value;
+
+            if (!selectedSceneId) {
+                container.html("<p>Select a scene to view details...</p>");
+                return;
+            }
+
+            const scene = data.scenes.find(s => s.id === selectedSceneId);
+            const sceneGoals = data.goals.filter(g => g.scene_id === selectedSceneId);
+            const sceneConflicts = data.conflicts.filter(c => c.scene_id === selectedSceneId);
+
+            let html = `
+                <div class="scene-details">
+                    <h3>${scene.id}</h3>
+                    <p><strong>Book:</strong> ${scene.book_title}</p>
+                    <p><strong>Scene Index:</strong> ${scene.scene_idx}</p>
+                    <p><strong>Length:</strong> ${scene.scene_length.toLocaleString()} characters</p>
+                    <p><strong>Narrator:</strong> ${scene.narrator}</p>
+                    
+                    <h4>Goals (${sceneGoals.length}):</h4>
+                    ${sceneGoals.length > 0 ? `
+                        <ul>
+                            ${sceneGoals.map(g => `
+                                <li>
+                                    <strong>${g.character}</strong> - <span style="color: ${colorScale(g.category)}; font-weight: bold;">${g.category}</span>
+                                    <br>${g.description}
+                                    <br><em style="color: #666;">Evidence: ${g.evidence}</em>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    ` : '<p style="color: #999; font-style: italic;">No goals identified in this scene.</p>'}
+                    
+                    <h4>Conflicts (${sceneConflicts.length}):</h4>
+                    ${sceneConflicts.length > 0 ? `
+                        <ul>
+                            ${sceneConflicts.map(c => `
+                                <li>
+                                    <strong>${c.type}</strong> - <span style="color: ${colorScale(c.category)}; font-weight: bold;">${c.category}</span>
+                                    <br>${c.description}
+                                    <br><em style="color: #666;">Evidence: ${c.evidence}</em>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    ` : '<p style="color: #999; font-style: italic;">No conflicts identified in this scene.</p>'}
+                </div>
+            `;
+
+            container.html(html);
+        }
+
+        function showTooltip(event, content) {
+            tooltip
+                .style("opacity", 1)
+                .html(content)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+        }
+
+        function hideTooltip() {
+            tooltip.style("opacity", 0);
+        }
+    </script>
+</body>
+</html>

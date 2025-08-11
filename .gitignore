@@ -1,0 +1,6 @@
+corpus_clean/
+gold_batch_out/
+.env
+batch_work
+results
+llm_logs
