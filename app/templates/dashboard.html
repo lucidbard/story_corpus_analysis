@@ -243,27 +243,7 @@
             <div id="scatter-chart"></div>
         </div>
         <div class="card full-width">
-            <div class="card-title">🕸️ Character & Theme Network</div>
-            <div class="controls">
-                <div class="control-group">
-                    <label>Layout:</label>
-                    <select id="network-layout">
-                        <option value="force">Force-Directed</option>
-                        <option value="circular">Circular</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label>Filter:</label>
-                    <select id="network-filter">
-                        <option value="all">All Connections</option>
-                        <option value="strong">Strong Connections Only</option>
-                    </select>
-                </div>
-            </div>
-            <div id="network-chart"></div>
-        </div>
-        <div class="card full-width">
-            <div class="card-title">🔍 Scene Details</div>
+            <div class="card-title"> Scene Details</div>
             <div class="controls">
                 <div class="control-group">
                     <label>Book:</label>
@@ -281,85 +261,11 @@
             <div id="scene-details"></div>
         </div>
     </div>
+    </div>
     <div class="tooltip" id="tooltip"></div>
-        
-        .card {
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ffff;
-            border-radius: 10px;
-            padding: 1.5em;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-        }
-        
-        .card-title {
-            font-family: 'Press Start 2P', cursive;
-            color: #ff69b4;
-            font-size: 14px;
-            margin-bottom: 1em;
-            text-shadow: 0 0 10px #ff69b4;
-        }
-        
-        .full-width {
-            grid-column: 1 / -1;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-        
-        .stat-item {
-            background: linear-gradient(45deg, rgba(255, 105, 180, 0.2), rgba(0, 255, 255, 0.2));
-            border: 1px solid #00ff41;
-            border-radius: 8px;
-            padding: 1em;
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-family: 'Orbitron', monospace;
-            font-size: 2em;
-            color: #00ff41;
-            text-shadow: 0 0 10px #00ff41;
-            display: block;
-        }
-        
-        .stat-label {
-            color: #ffff00;
-            font-size: 0.9em;
-            text-shadow: 0 0 5px #ffff00;
-        }
-        
-        .controls {
-            margin-bottom: 1em;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .tooltip {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.95);
-            color: #00ff41;
-            border: 1px solid #00ff41;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: 'VT323', monospace;
-            font-size: 14px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-            max-width: 300px;
-            z-index: 1000;
-            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
-        }
+</head>
+<body>
+    <h1>🕹️ Baby-Sitters Club Story Analysis Terminal</h1>
         
         /* Chart styling */
         .axis text {
@@ -446,20 +352,20 @@
                 <div id="scatter-chart"></div>
             </div>
             <div class="card">
-                <div class="card-title">🕸️ Character-Goal Network</div>
+                <div class="card-title">🕸️ Character Conflict Network</div>
                 <div class="controls">
                     <div class="control-group">
                         <label>Filter category:</label>
-                        <select id="network-filter">
+                        <select id="conflict-network-filter">
                             <option value="all">All Categories</option>
                         </select>
                     </div>
                     <div class="control-group">
                         <label>Force strength:</label>
-                        <input type="range" id="force-slider" min="10" max="100" value="50">
+                        <input type="range" id="conflict-force-slider" min="10" max="100" value="50">
                     </div>
                 </div>
-                <div id="network-chart"></div>
+                <div id="conflict-network-chart"></div>
             </div>
             <div class="card">
                 <div class="card-title">🎭 Character-Goal Relationships</div>
@@ -579,6 +485,7 @@
             
             initializeStats();
             initializeControls();
+            initializeSceneFilters();
             updateGoalsChart();
             updateLengthChart();
             updateScatterChart();
@@ -612,7 +519,19 @@
         }
 
         function initializeControls() {
-            // Placeholder for controls initialization
+            // Add event listeners for conflict network controls
+            const conflictNetworkFilter = document.getElementById('conflict-network-filter');
+            const conflictForceSlider = document.getElementById('conflict-force-slider');
+            
+            if (conflictNetworkFilter && !conflictNetworkFilter.hasAttribute('data-listeners-added')) {
+                conflictNetworkFilter.addEventListener('change', updateNetworkChart);
+                conflictNetworkFilter.setAttribute('data-listeners-added', 'true');
+            }
+            
+            if (conflictForceSlider && !conflictForceSlider.hasAttribute('data-listeners-added')) {
+                conflictForceSlider.addEventListener('input', updateNetworkChart);
+                conflictForceSlider.setAttribute('data-listeners-added', 'true');
+            }
         }
 
         function updateGoalsChart() {
@@ -864,7 +783,7 @@
         }
 
         function updateNetworkChart() {
-            const container = document.getElementById('network-chart');
+            const container = document.getElementById('conflict-network-chart');
             container.innerHTML = ''; // Clear previous content
             
             console.log('Network chart data:', data); // Debug log
@@ -1199,21 +1118,95 @@
             }
         }
 
+        function initializeSceneFilters() {
+            // Populate book filter
+            const bookFilter = document.getElementById('book-filter');
+            bookFilter.innerHTML = '<option value="all">All Books</option>';
+            
+            if (data && data.books) {
+                data.books.forEach(book => {
+                    const option = document.createElement('option');
+                    option.value = book.book_id;
+                    option.textContent = book.book_title || book.book_id;
+                    bookFilter.appendChild(option);
+                });
+            }
+            
+            // Populate scene filter based on selected book
+            updateSceneFilter();
+            
+            // Add event listeners
+            bookFilter.addEventListener('change', updateSceneFilter);
+            document.getElementById('scene-filter').addEventListener('change', updateSceneDetails);
+        }
+        
+        function updateSceneFilter() {
+            const bookFilter = document.getElementById('book-filter');
+            const sceneFilter = document.getElementById('scene-filter');
+            const selectedBook = bookFilter.value;
+            
+            sceneFilter.innerHTML = '<option value="all">All Scenes</option>';
+            
+            if (data && data.books && selectedBook !== 'all') {
+                const book = data.books.find(b => b.book_id === selectedBook);
+                if (book && book.scenes) {
+                    book.scenes.forEach(scene => {
+                        const option = document.createElement('option');
+                        option.value = scene.scene_id;
+                        const narrator = scene.narrator ? ` (${scene.narrator})` : '';
+                        option.textContent = `Scene ${scene.scene_num}${narrator}`;
+                        sceneFilter.appendChild(option);
+                    });
+                }
+            } else if (data && data.books) {
+                // Show all scenes from all books
+                data.books.forEach(book => {
+                    if (book.scenes) {
+                        book.scenes.forEach(scene => {
+                            const option = document.createElement('option');
+                            option.value = scene.scene_id;
+                            const narrator = scene.narrator ? ` (${scene.narrator})` : '';
+                            option.textContent = `${book.book_title || book.book_id} - Scene ${scene.scene_num}${narrator}`;
+                            sceneFilter.appendChild(option);
+                        });
+                    }
+                });
+            }
+            
+            updateSceneDetails();
+        }
+
         function updateSceneDetails() {
             // Scene details with actual data
             const container = document.getElementById('scene-details');
             if (!data || !data.books) return;
             
+            const selectedBook = document.getElementById('book-filter').value;
+            const selectedScene = document.getElementById('scene-filter').value;
+            
             let html = '<div style="color: #00ffff; padding: 10px;">';
-            data.books.forEach(book => {
-                html += `<h4 style="color: #ff69b4;">${book.title}</h4>`;
+            
+            // Filter books based on selection
+            const booksToShow = selectedBook === 'all' ? data.books : data.books.filter(b => b.book_id === selectedBook);
+            
+            booksToShow.forEach(book => {
+                html += `<h4 style="color: #ff69b4;">${book.book_title || book.book_id}</h4>`;
                 if (book.scenes && book.scenes.length > 0) {
-                    book.scenes.forEach(scene => {
+                    // Filter scenes based on selection
+                    const scenesToShow = selectedScene === 'all' ? book.scenes : book.scenes.filter(s => s.scene_id === selectedScene);
+                    
+                    scenesToShow.forEach(scene => {
+                        // Create preview and calculate length from scene.text
+                        const textContent = scene.text || '';
+                        const preview = textContent.substring(0, 150) + (textContent.length > 150 ? '...' : '');
+                        const length = textContent.length;
+                        const narrator = scene.narrator ? ` (Narrator: ${scene.narrator})` : '';
+                        
                         html += `
                             <div style="margin: 10px 0; padding: 10px; border: 1px solid #00ff41; border-radius: 5px;">
-                                <strong>Scene ${scene.scene_num}:</strong><br>
-                                <em>${scene.text_preview || 'No preview available'}</em><br>
-                                <small>Length: ${scene.text_length || 0} characters</small>
+                                <strong>Scene ${scene.scene_num}${narrator}:</strong><br>
+                                <em>${preview || 'No preview available'}</em><br>
+                                <small>Length: ${length} characters | Chapter: ${scene.chapter_num || 'N/A'}</small>
                             </div>
                         `;
                     });
