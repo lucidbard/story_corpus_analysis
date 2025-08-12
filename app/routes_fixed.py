@@ -3,10 +3,6 @@ import requests
 import json
 import time
 import os
-import sys
-
-# Add parent directory to path for module imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from modules.llm_provider import LLMProvider
 from modules.story_processor import SimpleStoryProcessor
@@ -16,22 +12,9 @@ from modules.visualization import prepare_visualization_data, export_for_html_vi
 app = Flask(__name__)
 
 API_KEYS = {}
-OLLAMA_CONFIG = {'url': 'http://172.21.144.1:11434', 'enabled_models': {}}
+OLLAMA_CONFIG = {'url': 'http://localhost:11434', 'enabled_models': {}}
 CORPUS_DIR = os.path.join(os.getcwd(), 'corpus_uploads')
-CORPUS_CLEAN_DIR = os.path.join(os.getcwd(), 'corpus_clean')
 os.makedirs(CORPUS_DIR, exist_ok=True)
-
-def resolve_corpus_path(corpus_name):
-    """Convert corpus name to actual file path"""
-    if corpus_name.startswith('uploads/'):
-        actual_name = corpus_name[8:]  # Remove 'uploads/' prefix
-        return os.path.join(CORPUS_DIR, actual_name)
-    elif corpus_name.startswith('clean/'):
-        actual_name = corpus_name[6:]  # Remove 'clean/' prefix
-        return os.path.join(CORPUS_CLEAN_DIR, actual_name)
-    else:
-        # Default to corpus_clean for backwards compatibility
-        return os.path.join(CORPUS_CLEAN_DIR, corpus_name)
 
 # List corpus folders in web directory and uploads
 def get_corpus_folders():
@@ -160,20 +143,14 @@ def upload_corpus():
 @app.route('/process_corpus', methods=['POST'])
 def process_corpus():
     provider = request.form.get('provider', 'ollama')
-    model = request.form.get('model', 'gpt-oss:latest')
-    corpus = request.form.get('corpus', 'clean/clean corpus no paratext')
-    sample_size = request.form.get('sample_size', type=int)
-    
-    # Resolve corpus path properly
-    corpus_path = resolve_corpus_path(corpus)
-    
-    llm = LLMProvider(provider, model, API_KEYS, OLLAMA_CONFIG['url'])
+    model = request.form.get('model', 'llama2')
+    corpus = request.form.get('corpus', CORPUS_DIR)
+    llm = LLMProvider(provider, model, API_KEYS)
     processor = SimpleStoryProcessor(llm)
-    results = process_entire_corpus(corpus_path, processor, sample_size)
+    results = process_entire_corpus(corpus, processor)
     viz_data = prepare_visualization_data(results)
     # Save with corpus/model in filename for switching
-    corpus_name = corpus.replace('clean/', '').replace('uploads/', '')
-    result_name = f"{corpus_name}_{model}_visualization.json"
+    result_name = f"{os.path.basename(corpus)}_{model}_visualization.json"
     json_file = export_for_html_visualization(viz_data, filename=result_name)
     return jsonify({'status': 'complete', 'json_file': str(json_file)})
 
@@ -182,7 +159,7 @@ def process_corpus():
 def process_corpus_stream():
     def generate():
         provider = request.args.get('provider', 'ollama')
-        model = request.args.get('model', 'gpt-oss:latest')
+        model = request.args.get('model', 'llama2')
         corpus = request.args.get('corpus', 'clean corpus no paratext')
         
         try:
@@ -253,7 +230,7 @@ def get_visualization_data():
         return jsonify({'error': 'Corpus not found'}), 404
     # Process corpus and return visualization data
     provider = request.args.get('provider', 'ollama')
-    model = request.args.get('model', 'gpt-oss:latest')
+    model = request.args.get('model', 'llama2')
     llm = LLMProvider(provider, model, API_KEYS)
     processor = SimpleStoryProcessor(llm)
     results = process_entire_corpus(corpus_path, processor)
@@ -265,4 +242,4 @@ def visualization():
     return render_template('dashboard.html')
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001, host='0.0.0.0')
+    app.run(debug=True)

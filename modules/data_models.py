@@ -25,6 +25,20 @@ class Goal:
     category: str
     evidence: str
     confidence: float
+    book_id: str = ""
+
+@dataclass
+class Conflict:
+    conflict_id: str
+    scene_id: str
+    conflict_type: str  # "goal_opposition", "external_obstacle", "internal_obstacle"
+    description: str
+    characters_involved: List[str]
+    goals_affected: List[str]  # goal_ids that are in conflict
+    evidence: str  # Direct quote from text
+    rationale: str  # Explanation of why this is a conflict
+    severity: str  # "low", "medium", "high"
+    book_id: str = ""
 
 @dataclass
 class ProcessingProgress:

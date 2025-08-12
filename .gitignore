@@ -4,3 +4,5 @@ gold_batch_out/
 batch_work
 results
 llm_logs
+corpus_uploads/*
+**/*.cpython-312.pyc
