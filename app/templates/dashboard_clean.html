@@ -74,9 +74,6 @@
             font-size: 14px;
             margin-bottom: 1em;
             text-shadow: 0 0 10px #ff69b4;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
         .full-width {
@@ -166,17 +163,19 @@
         
         /* Fullscreen functionality */
         .fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             background: rgba(0, 255, 255, 0.2);
             border: 1px solid #00ffff;
             color: #00ffff;
-            padding: 3px 6px;
+            padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
             font-family: 'VT323', monospace;
             font-size: 12px;
             transition: all 0.3s ease;
-            z-index: 1000;
-            flex-shrink: 0;
+            z-index: 100;
         }
         
         .fullscreen-btn:hover {
@@ -273,54 +272,10 @@
             color: #00ffff;
             white-space: pre-wrap;
         }
-        
-        /* Navigation styles */
-        header {
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #00ffff;
-            border-radius: 10px;
-            padding: 1em;
-            margin-bottom: 2em;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-        }
-        
-        nav {
-            margin-top: 1em;
-            text-align: center;
-        }
-        
-        nav a {
-            color: #00ffff;
-            text-decoration: none;
-            margin: 0 15px;
-            padding: 8px 16px;
-            border: 1px solid #00ffff;
-            border-radius: 4px;
-            background: rgba(0, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        nav a:hover {
-            background: rgba(0, 255, 255, 0.3);
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-        }
-        
-        nav a.active {
-            background: rgba(255, 107, 180, 0.3);
-            border-color: #ff69b4;
-            color: #ff69b4;
-        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>🕹️ Baby-Sitters Club Story Analysis Dashboard</h1>
-        <nav>
-            <a href="/">🏠 Home</a>
-            <a href="/api_keys">🔑 Configuration</a>
-            <a href="/visualization" class="active">📊 Visualization</a>
-        </nav>
-    </header>
+    <h1>🕹️ Baby-Sitters Club Story Analysis Dashboard</h1>
     {% if error %}
         <div class="error">{{ error }}</div>
     {% endif %}
@@ -344,10 +299,7 @@
 
     <div class="dashboard">
         <div class="card">
-            <div class="card-title">
-                <span>🎯 Goal Categories Distribution</span>
-                <button class="fullscreen-btn" onclick="openFullscreen('goals-chart')">🔍</button>
-            </div>
+            <div class="card-title">🎯 Goal Categories Distribution</div>
             <div class="controls">
                 <div class="control-group">
                     <label>Sort by:</label>
@@ -358,14 +310,12 @@
                 </div>
             </div>
             <div id="goals-chart" class="chart-container">
+                <button class="fullscreen-btn" onclick="openFullscreen('goals-chart')">🔍</button>
             </div>
             <div class="legend" id="goals-legend"></div>
         </div>
         <div class="card">
-            <div class="card-title">
-                <span>📏 Scene Length Distribution</span>
-                <button class="fullscreen-btn" onclick="openFullscreen('length-chart')">🔍</button>
-            </div>
+            <div class="card-title">📏 Scene Length Distribution</div>
             <div class="controls">
                 <div class="control-group">
                     <label>Bins:</label>
@@ -374,13 +324,11 @@
                 </div>
             </div>
             <div id="length-chart" class="chart-container">
+                <button class="fullscreen-btn" onclick="openFullscreen('length-chart')">🔍</button>
             </div>
         </div>
         <div class="card">
-            <div class="card-title">
-                <span>⚡ Goals vs Conflicts by Scene</span>
-                <button class="fullscreen-btn" onclick="openFullscreen('scatter-chart')">🔍</button>
-            </div>
+            <div class="card-title">⚡ Goals vs Conflicts by Scene</div>
             <div class="controls">
                 <div class="control-group">
                     <label>Size by:</label>
@@ -391,13 +339,11 @@
                 </div>
             </div>
             <div id="scatter-chart" class="chart-container">
+                <button class="fullscreen-btn" onclick="openFullscreen('scatter-chart')">🔍</button>
             </div>
         </div>
         <div class="card">
-            <div class="card-title">
-                <span>🕸️ Character Conflict Network</span>
-                <button class="fullscreen-btn" onclick="openFullscreen('conflict-network-chart')">🔍</button>
-            </div>
+            <div class="card-title">🕸️ Character Conflict Network</div>
             <div class="controls">
                 <div class="control-group">
                     <label>Filter by character:</label>
@@ -412,13 +358,11 @@
                 </div>
             </div>
             <div id="conflict-network-chart" class="chart-container">
+                <button class="fullscreen-btn" onclick="openFullscreen('conflict-network-chart')">🔍</button>
             </div>
         </div>
         <div class="card">
-            <div class="card-title">
-                <span>🕸️ Character & Goal Network</span>
-                <button class="fullscreen-btn" onclick="openFullscreen('goal-network-chart')">🔍</button>
-            </div>
+            <div class="card-title">🎭 Character-Goal Network</div>
             <div class="controls">
                 <div class="control-group">
                     <label>Filter by category:</label>
@@ -433,6 +377,7 @@
                 </div>
             </div>
             <div id="goal-network-chart" class="chart-container">
+                <button class="fullscreen-btn" onclick="openFullscreen('goal-network-chart')">🔍</button>
             </div>
         </div>
         <div class="card full-width">
@@ -530,11 +475,9 @@
         }
 
         function fetchResults() {
-            console.log('fetchResults called');
             fetch('/list_results')
                 .then(res => res.json())
                 .then(results => {
-                    console.log('Results received:', results);
                     availableResults = results;
                     const selector = document.getElementById('result-selector');
                     selector.innerHTML = '';
@@ -553,24 +496,13 @@
                         option.textContent = `${result.name} (${result.modified})`;
                         selector.appendChild(option);
                     });
-                    
-                    // Auto-load the first (most recent) result
-                    if (results.length > 0) {
-                        console.log('Auto-loading first result:', results[0].name);
-                        selector.value = results[0].name;
-                        loadResult();
-                    }
                 })
-                .catch(err => {
-                    console.error('Error fetching results:', err);
-                });
+                .catch(err => console.error('Error fetching results:', err));
         }
 
         function loadResult() {
             const selector = document.getElementById('result-selector');
             const selectedResult = selector.value;
-            
-            console.log('loadResult called with:', selectedResult);
             
             if (!selectedResult) {
                 alert('Please select a result to load');
@@ -580,7 +512,6 @@
             fetch(`/preview_result?name=${encodeURIComponent(selectedResult)}`)
                 .then(res => res.json())
                 .then(result => {
-                    console.log('Data loaded successfully, books count:', result.books ? result.books.length : 'no books');
                     data = result;
                     updateVisualization();
                 })
@@ -837,618 +768,140 @@
                 return;
             }
 
-            // Collect data points from all books and aggregate by scene
+            // Collect data points from all books
             const sceneData = [];
-            const sceneMap = new Map(); // To aggregate goals and conflicts by scene
-            
             chartData.books.forEach(book => {
-                // First, initialize scenes with basic info
                 if (book.scenes) {
                     book.scenes.forEach(scene => {
-                        sceneMap.set(scene.scene_id, {
-                            scene_id: scene.scene_id,
-                            book_title: book.book_title || 'Unknown',
-                            scene_num: scene.scene_num || 0,
-                            chapter_num: scene.chapter_num || 0,
-                            text_length: scene.text ? scene.text.length : 0,
-                            goals: 0,
-                            conflicts: 0
+                        const goalCount = scene.goals ? scene.goals.length : 0;
+                        const conflictCount = scene.conflicts ? scene.conflicts.length : 0;
+                        const textLength = scene.text ? scene.text.length : 0;
+                        
+                        sceneData.push({
+                            goals: goalCount,
+                            conflicts: conflictCount,
+                            length: textLength,
+                            book: book.title || 'Unknown',
+                            scene: scene.title || 'Untitled Scene'
                         });
                     });
                 }
-                
-                // Count goals for each scene
-                if (book.goals) {
-                    book.goals.forEach(goal => {
-                        if (goal.scene_id && sceneMap.has(goal.scene_id)) {
-                            sceneMap.get(goal.scene_id).goals++;
-                        }
-                    });
-                }
-                
-                // Count conflicts for each scene
-                if (book.conflicts) {
-                    book.conflicts.forEach(conflict => {
-                        if (conflict.scene_id && sceneMap.has(conflict.scene_id)) {
-                            sceneMap.get(conflict.scene_id).conflicts++;
-                        }
-                    });
-                }
             });
-            
-            // Convert map to array for visualization
-            sceneData.push(...sceneMap.values());
-
-            console.log('Scatter plot data points:', sceneData.length);
 
             if (sceneData.length === 0) {
                 container.innerHTML = '<div style="padding: 20px; text-align: center; color: #00ffff;">No scene data found</div>';
                 return;
             }
 
-            // Add zoom/pan controls
-            const controlsDiv = d3.select(container)
-                .append('div')
-                .style('margin-bottom', '10px')
-                .style('text-align', 'center');
-
-            controlsDiv.append('button')
-                .text('Reset Zoom')
-                .style('background', 'rgba(0,255,255,0.2)')
-                .style('border', '1px solid #00ffff')
-                .style('color', '#00ffff')
-                .style('padding', '2px 6px')
-                .style('margin', '0 5px')
-                .style('font-family', 'VT323, monospace')
-                .style('cursor', 'pointer')
-                .on('click', resetZoom);
-
-            controlsDiv.append('span')
-                .style('color', '#00ffff')
-                .style('font-family', 'VT323, monospace')
-                .style('font-size', '12px')
-                .style('margin', '0 10px')
-                .text('Mouse: drag to pan, wheel to zoom');
-
-            const margin = { top: 40, right: 20, bottom: 60, left: 60 };
-            const chartWidth = width - margin.left - margin.right;
-            const chartHeight = height - margin.top - margin.bottom;
+            const margin = { top: 20, right: 20, bottom: 40, left: 60 };
+            const chartWidth = width;
+            const chartHeight = height;
 
             const svg = d3.select(container)
                 .append('svg')
-                .attr('width', width)
-                .attr('height', height);
-
-            const g = svg.append('g')
-                .attr('transform', `translate(${margin.left},${margin.top})`);
-
-            // Create zoom behavior
-            const zoom = d3.zoom()
-                .scaleExtent([0.5, 10])
-                .on('zoom', zoomed);
-
-            svg.call(zoom);
+                .attr('width', chartWidth)
+                .attr('height', chartHeight);
 
             const xScale = d3.scaleLinear()
-                .domain([0, d3.max(sceneData, d => d.goals) || 1])
-                .range([0, chartWidth]);
+                .domain(d3.extent(sceneData, d => d.goals))
+                .range([margin.left, chartWidth - margin.right]);
 
             const yScale = d3.scaleLinear()
-                .domain([0, d3.max(sceneData, d => d.conflicts) || 1])
-                .range([chartHeight, 0]);
+                .domain(d3.extent(sceneData, d => d.conflicts))
+                .range([chartHeight - margin.bottom, margin.top]);
 
-            // Create chart group that will be transformed by zoom
-            const chartGroup = g.append('g');
+            const radiusScale = d3.scaleSqrt()
+                .domain(d3.extent(sceneData, d => d.length))
+                .range([3, 15]);
 
-            // Add dots (smaller size)
-            const dots = chartGroup.selectAll('.dot')
+            // Add dots
+            svg.selectAll('circle')
                 .data(sceneData)
-                .enter().append('circle')
-                .attr('class', 'dot')
+                .enter()
+                .append('circle')
                 .attr('cx', d => xScale(d.goals))
                 .attr('cy', d => yScale(d.conflicts))
-                .attr('r', d => Math.max(1.5, Math.min(4, Math.sqrt(d.text_length / 2000)))) // Smaller nodes
-                .style('fill', '#ff69b4')
-                .style('stroke', '#00ffff')
-                .style('stroke-width', 0.5)
-                .style('opacity', 0.7);
-
-            // Add tooltips
-            dots.append('title')
-                .text(d => `${d.book_title} - Ch${d.chapter_num} Scene${d.scene_num}\nGoals: ${d.goals}, Conflicts: ${d.conflicts}\nText length: ${d.text_length}`);
-
-            // Add axes
-            const xAxis = g.append('g')
-                .attr('class', 'x-axis')
-                .attr('transform', `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(xScale))
-                .selectAll('text')
-                .style('fill', '#00ffff')
-                .style('font-family', 'VT323, monospace');
-
-            const yAxis = g.append('g')
-                .attr('class', 'y-axis')
-                .call(d3.axisLeft(yScale))
-                .selectAll('text')
-                .style('fill', '#00ffff')
-                .style('font-family', 'VT323, monospace');
-
-            // Add axis labels
-            g.append('text')
-                .attr('transform', 'rotate(-90)')
-                .attr('y', 0 - margin.left)
-                .attr('x', 0 - (chartHeight / 2))
-                .attr('dy', '1em')
-                .style('text-anchor', 'middle')
-                .style('fill', '#00ffff')
-                .style('font-family', 'VT323, monospace')
-                .text('Number of Conflicts');
-
-            g.append('text')
-                .attr('x', chartWidth / 2)
-                .attr('y', chartHeight + margin.bottom - 10)
-                .attr('text-anchor', 'middle')
-                .style('fill', '#00ffff')
-                .style('font-family', 'VT323, monospace')
-                .text('Number of Goals');
+                .attr('r', d => radiusScale(d.length))
+                .attr('fill', '#ff69b4')
+                .attr('stroke', '#00ffff')
+                .attr('stroke-width', 1)
+                .attr('opacity', 0.7);
 
             // Add title
             svg.append('text')
-                .attr('x', width / 2)
-                .attr('y', 20)
+                .attr('x', chartWidth / 2)
+                .attr('y', 15)
                 .attr('text-anchor', 'middle')
-                .style('fill', '#ff69b4')
-                .style('font-family', 'VT323, monospace')
-                .style('font-size', '16px')
-                .text(`Goals vs Conflicts by Scene (${sceneData.length} scenes)`);
-
-            function zoomed(event) {
-                const transform = event.transform;
-                chartGroup.attr('transform', transform);
-                
-                // Update axes with new scale
-                g.select('.x-axis').call(d3.axisBottom(transform.rescaleX(xScale)));
-                g.select('.y-axis').call(d3.axisLeft(transform.rescaleY(yScale)));
-            }
-
-            function resetZoom() {
-                svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
-            }
+                .attr('font-size', '14px')
+                .attr('fill', '#00ffff')
+                .text('Goals vs Conflicts by Scene');
         }
 
         function updateNetworkChart(chartData = data, containerId = 'conflict-network-chart', width = 450, height = 300) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
             
-            console.log('updateNetworkChart called with:', chartData ? 'data exists' : 'no data');
-            console.log('Books available:', chartData && chartData.books ? chartData.books.length : 'none');
-            
-            if (!chartData || !chartData.books) {
-                console.log('No book data available for network');
-                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #00ffff;">No book data available for network</div>';
+            if (!chartData || !chartData.conflict_network) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #00ffff;">No conflict network data available</div>';
                 return;
             }
 
-            // Collect conflict data
-            const conflictData = {};
-            let totalConflicts = 0;
-            
-            chartData.books.forEach(book => {
-                if (book.conflicts) {
-                    book.conflicts.forEach(conflict => {
-                        totalConflicts++;
-                        const type = conflict.conflict_type || 'unknown';
-                        const severity = conflict.severity || 'medium';
-                        
-                        if (!conflictData[type]) {
-                            conflictData[type] = { low: 0, medium: 0, high: 0 };
-                        }
-                        conflictData[type][severity]++;
-                    });
-                }
-            });
-            
-            console.log('Total conflicts found:', totalConflicts);
-            console.log('Conflict data:', conflictData);
-            
-            // Create D3 visualization
-            const margin = { top: 40, right: 20, bottom: 80, left: 60 };
-            const chartWidth = width - margin.left - margin.right;
-            const chartHeight = height - margin.top - margin.bottom;
+            const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+            const chartWidth = width;
+            const chartHeight = height;
 
             const svg = d3.select(container)
                 .append('svg')
-                .attr('width', width)
-                .attr('height', height);
+                .attr('width', chartWidth)
+                .attr('height', chartHeight);
 
-            const g = svg.append('g')
-                .attr('transform', `translate(${margin.left},${margin.top})`);
-
-            // Prepare data for stacked bar chart
-            const types = Object.keys(conflictData);
-            const severities = ['low', 'medium', 'high'];
-            const colors = { low: '#00ff00', medium: '#ffff00', high: '#ff6600' };
-            
-            const stackData = types.map(type => {
-                const base = { type: type };
-                let cumulative = 0;
-                severities.forEach(severity => {
-                    base[severity] = conflictData[type][severity];
-                    base[severity + '_start'] = cumulative;
-                    cumulative += conflictData[type][severity];
-                });
-                base.total = cumulative;
-                return base;
-            });
-
-            const xScale = d3.scaleBand()
-                .domain(types)
-                .range([0, chartWidth])
-                .padding(0.1);
-
-            const yScale = d3.scaleLinear()
-                .domain([0, d3.max(stackData, d => d.total)])
-                .range([chartHeight, 0]);
-
-            // Draw stacked bars
-            severities.forEach(severity => {
-                g.selectAll(`.bar-${severity}`)
-                    .data(stackData)
-                    .enter().append('rect')
-                    .attr('class', `bar-${severity}`)
-                    .attr('x', d => xScale(d.type))
-                    .attr('width', xScale.bandwidth())
-                    .attr('y', d => yScale(d[severity + '_start'] + d[severity]))
-                    .attr('height', d => yScale(d[severity + '_start']) - yScale(d[severity + '_start'] + d[severity]))
-                    .style('fill', colors[severity])
-                    .style('opacity', 0.8)
-                    .append('title')
-                    .text(d => `${severity}: ${d[severity]} conflicts`);
-            });
-
-            // Add axes
-            g.append('g')
-                .attr('transform', `translate(0,${chartHeight})`)
-                .call(d3.axisBottom(xScale))
-                .selectAll('text')
-                .style('fill', '#00ffff')
-                .style('font-family', 'VT323, monospace')
-                .attr('transform', 'rotate(-45)')
-                .style('text-anchor', 'end');
-
-            g.append('g')
-                .call(d3.axisLeft(yScale))
-                .selectAll('text')
-                .style('fill', '#00ffff')
-                .style('font-family', 'VT323, monospace');
-
-            // Add labels
-            g.append('text')
-                .attr('transform', 'rotate(-90)')
-                .attr('y', 0 - margin.left)
-                .attr('x', 0 - (chartHeight / 2))
-                .attr('dy', '1em')
-                .style('text-anchor', 'middle')
-                .style('fill', '#00ffff')
-                .style('font-family', 'VT323, monospace')
-                .text('Number of Conflicts');
-
-            g.append('text')
-                .attr('x', chartWidth / 2)
-                .attr('y', 0 - (margin.top / 2))
-                .attr('text-anchor', 'middle')
-                .style('fill', '#ff69b4')
-                .style('font-family', 'VT323, monospace')
-                .style('font-size', '16px')
-                .text(`Conflicts by Type & Severity (${totalConflicts} total)`);
-
-            // Add legend
-            const legend = svg.append('g')
-                .attr('transform', `translate(${width - 100}, 30)`);
-
-            severities.forEach((severity, i) => {
-                const legendRow = legend.append('g')
-                    .attr('transform', `translate(0, ${i * 20})`);
-
-                legendRow.append('rect')
-                    .attr('width', 15)
-                    .attr('height', 15)
-                    .style('fill', colors[severity]);
-
-                legendRow.append('text')
-                    .attr('x', 20)
-                    .attr('y', 12)
-                    .style('fill', '#00ffff')
-                    .style('font-family', 'VT323, monospace')
-                    .style('font-size', '12px')
-                    .text(severity);
-            });
-        }
-
-        function updateGoalNetworkChart(chartData = data, containerId = 'goal-network-chart', width = 450, height = 300) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            
-            console.log('updateGoalNetworkChart called with:', chartData ? 'data exists' : 'no data');
-            
-            if (!chartData || !chartData.books) {
-                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #00ffff;">No goal data available</div>';
-                return;
-            }
-
-            const nodes = [];
-            const links = [];
-            const characterGoalCounts = {};
-            const goalCategoryCounts = {};
-            const characterConflicts = {};
-
-            // First pass: Collect all data
-            chartData.books.forEach(book => {
-                // Count goals by character and category
-                if (book.goals) {
-                    book.goals.forEach(goal => {
-                        if (goal.character && goal.category) {
-                            // Count character-goal relationships
-                            if (!characterGoalCounts[goal.character]) {
-                                characterGoalCounts[goal.character] = {};
-                            }
-                            characterGoalCounts[goal.character][goal.category] = 
-                                (characterGoalCounts[goal.character][goal.category] || 0) + 1;
-                            
-                            // Count goal categories
-                            goalCategoryCounts[goal.category] = (goalCategoryCounts[goal.category] || 0) + 1;
-                        }
-                    });
-                }
-
-                // Count character conflicts
-                if (book.conflicts) {
-                    book.conflicts.forEach(conflict => {
-                        // Extract characters from description if characters_involved is empty
-                        let characters = [];
-                        if (conflict.characters_involved && conflict.characters_involved.length > 0) {
-                            characters = conflict.characters_involved;
-                        } else if (conflict.description) {
-                            // Try to extract character names from the description
-                            const description = conflict.description;
-                            Object.keys(characterGoalCounts).forEach(char => {
-                                if (description.includes(char)) {
-                                    characters.push(char);
-                                }
-                            });
-                        }
-
-                        // Create conflict pairs
-                        for (let i = 0; i < characters.length; i++) {
-                            for (let j = i + 1; j < characters.length; j++) {
-                                const char1 = characters[i];
-                                const char2 = characters[j];
-                                const pair = [char1, char2].sort().join('|||');
-                                characterConflicts[pair] = (characterConflicts[pair] || 0) + 1;
-                            }
-                        }
-                    });
-                }
-            });
-
-            const filterCategory = document.getElementById('goal-filter')?.value || 'all';
-
-            // Create character nodes (sized by total goals)
-            Object.keys(characterGoalCounts).forEach(char => {
-                const totalGoals = Object.values(characterGoalCounts[char]).reduce((sum, count) => sum + count, 0);
-                nodes.push({
-                    id: char,
-                    type: 'character',
-                    name: char.length > 15 ? char.substring(0, 15) + '...' : char,
-                    size: Math.max(8, Math.min(20, 8 + totalGoals * 2)), // Scale based on goal count
-                    goalCount: totalGoals
-                });
-            });
-
-            // Create goal category nodes (sized by frequency)
-            Object.entries(goalCategoryCounts).forEach(([category, count]) => {
-                if (filterCategory === 'all' || filterCategory === category) {
-                    nodes.push({
-                        id: category,
-                        type: 'goal',
-                        name: category.length > 15 ? category.substring(0, 15) + '...' : category,
-                        size: Math.max(6, Math.min(25, 6 + count * 0.5)), // Scale based on frequency
-                        goalCount: count
-                    });
-                }
-            });
-
-            // Create character-goal links
-            Object.entries(characterGoalCounts).forEach(([char, goals]) => {
-                Object.entries(goals).forEach(([category, count]) => {
-                    if (filterCategory === 'all' || filterCategory === category) {
-                        links.push({
-                            source: char,
-                            target: category,
-                            type: 'goal',
-                            strength: Math.min(5, count * 0.5), // Thicker for more goals
-                            count: count
-                        });
-                    }
-                });
-            });
-
-            // Create character-character conflict links
-            Object.entries(characterConflicts).forEach(([pair, count]) => {
-                const [char1, char2] = pair.split('|||');
-                if (characterGoalCounts[char1] && characterGoalCounts[char2]) {
-                    links.push({
-                        source: char1,
-                        target: char2,
-                        type: 'conflict',
-                        strength: Math.min(8, count), // Thicker for more conflicts
-                        count: count
-                    });
-                }
-            });
+            // Process network data
+            const nodes = chartData.conflict_network.nodes || [];
+            const links = chartData.conflict_network.links || [];
 
             if (nodes.length === 0) {
-                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #00ffff;">No character-goal relationships found</div>';
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #00ffff;">No character nodes found</div>';
                 return;
             }
 
-            const svg = d3.select(container)
-                .append('svg')
-                .attr('width', width)
-                .attr('height', height);
-
-            // Add zoom behavior
-            const g = svg.append('g');
-
-            const zoom = d3.zoom()
-                .scaleExtent([0.2, 4])
-                .on('zoom', function(event) {
-                    g.attr('transform', event.transform);
-                });
-
-            svg.call(zoom);
-
-            // Add reset zoom button
-            const resetBtn = svg.append('text')
-                .attr('x', width - 80)
-                .attr('y', 15)
-                .text('Reset View')
-                .style('fill', '#00ffff')
-                .style('font-family', 'VT323, monospace')
-                .style('font-size', '12px')
-                .style('cursor', 'pointer')
-                .on('click', function() {
-                    svg.transition().duration(750).call(
-                        zoom.transform,
-                        d3.zoomIdentity
-                    );
-                });
-
-            // Add legend
-            const legend = svg.append('g')
-                .attr('transform', 'translate(10, 20)');
-
-            legend.append('circle')
-                .attr('cx', 10)
-                .attr('cy', 10)
-                .attr('r', 8)
-                .style('fill', '#ff69b4');
-            
-            legend.append('text')
-                .attr('x', 25)
-                .attr('y', 15)
-                .text('Characters')
-                .style('fill', '#ffffff')
-                .style('font-family', 'VT323, monospace')
-                .style('font-size', '11px');
-
-            legend.append('circle')
-                .attr('cx', 10)
-                .attr('cy', 30)
-                .attr('r', 6)
-                .style('fill', '#00ffff');
-            
-            legend.append('text')
-                .attr('x', 25)
-                .attr('y', 35)
-                .text('Goal Types')
-                .style('fill', '#ffffff')
-                .style('font-family', 'VT323, monospace')
-                .style('font-size', '11px');
-
-            legend.append('line')
-                .attr('x1', 5)
-                .attr('y1', 50)
-                .attr('x2', 20)
-                .attr('y2', 50)
-                .style('stroke', '#00ffff')
-                .style('stroke-width', 2);
-            
-            legend.append('text')
-                .attr('x', 25)
-                .attr('y', 55)
-                .text('Has Goals')
-                .style('fill', '#ffffff')
-                .style('font-family', 'VT323, monospace')
-                .style('font-size', '11px');
-
-            legend.append('line')
-                .attr('x1', 5)
-                .attr('y1', 70)
-                .attr('x2', 20)
-                .attr('y2', 70)
-                .style('stroke', '#ff4444')
-                .style('stroke-width', 3);
-            
-            legend.append('text')
-                .attr('x', 25)
-                .attr('y', 75)
-                .text('In Conflict')
-                .style('fill', '#ffffff')
-                .style('font-family', 'VT323, monospace')
-                .style('font-size', '11px');
-
-            const forceStrength = parseInt(document.getElementById('goal-force-slider')?.value || 150);
-
             const simulation = d3.forceSimulation(nodes)
-                .force('link', d3.forceLink(links).id(d => d.id).strength(d => d.type === 'conflict' ? 0.8 : 0.3))
-                .force('charge', d3.forceManyBody().strength(-forceStrength))
-                .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collision', d3.forceCollide().radius(d => d.size + 2));
+                .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(chartWidth / 2, chartHeight / 2));
 
-            // Create links
-            const link = g.append('g')
+            // Add links
+            const link = svg.append('g')
                 .selectAll('line')
                 .data(links)
-                .enter().append('line')
-                .style('stroke', d => d.type === 'conflict' ? '#ff4444' : '#00ffff')
-                .style('stroke-opacity', d => d.type === 'conflict' ? 0.8 : 0.6)
-                .style('stroke-width', d => d.strength)
-                .style('stroke-dasharray', d => d.type === 'conflict' ? '0' : '2,2');
+                .enter()
+                .append('line')
+                .attr('stroke', '#00ffff')
+                .attr('stroke-opacity', 0.6)
+                .attr('stroke-width', d => Math.sqrt(d.weight || 1));
 
-            // Create nodes
-            const node = g.append('g')
+            // Add nodes
+            const node = svg.append('g')
                 .selectAll('circle')
                 .data(nodes)
-                .enter().append('circle')
-                .attr('r', d => d.size)
-                .style('fill', d => d.type === 'character' ? '#ff69b4' : '#00ffff')
-                .style('stroke', '#fff')
-                .style('stroke-width', 2)
-                .style('opacity', 0.8)
-                .call(d3.drag()
-                    .on('start', dragstarted)
-                    .on('drag', dragged)
-                    .on('end', dragended));
+                .enter()
+                .append('circle')
+                .attr('r', d => Math.sqrt((d.conflicts || 1) * 10))
+                .attr('fill', '#ff69b4')
+                .attr('stroke', '#ffff00')
+                .attr('stroke-width', 2);
 
-            // Add hover effects
-            node.on('mouseover', function(event, d) {
-                d3.select(this).style('opacity', 1).style('stroke-width', 3);
-                
-                // Highlight connected links
-                link.style('opacity', function(l) {
-                    return (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.3;
-                });
-            })
-            .on('mouseout', function(event, d) {
-                d3.select(this).style('opacity', 0.8).style('stroke-width', 2);
-                link.style('opacity', l => l.type === 'conflict' ? 0.8 : 0.6);
-            });
-
-            // Create labels
-            const label = g.append('g')
+            // Add labels
+            const labels = svg.append('g')
                 .selectAll('text')
                 .data(nodes)
-                .enter().append('text')
-                .text(d => d.name)
-                .style('font-family', 'VT323, monospace')
-                .style('font-size', '10px')
-                .style('fill', '#ffffff')
-                .style('text-anchor', 'middle')
-                .style('pointer-events', 'none')
-                .style('text-shadow', '1px 1px 2px rgba(0,0,0,0.8)');
+                .enter()
+                .append('text')
+                .attr('dy', -3)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '10px')
+                .attr('fill', '#00ffff')
+                .text(d => d.id);
 
-            // Update positions on simulation tick
             simulation.on('tick', () => {
                 link
                     .attr('x1', d => d.source.x)
@@ -1460,28 +913,149 @@
                     .attr('cx', d => d.x)
                     .attr('cy', d => d.y);
 
-                label
+                labels
                     .attr('x', d => d.x)
-                    .attr('y', d => d.y + 4);
+                    .attr('y', d => d.y);
             });
 
-            // Drag functions
-            function dragstarted(event, d) {
-                if (!event.active) simulation.alphaTarget(0.3).restart();
-                d.fx = d.x;
-                d.fy = d.y;
+            // Add title
+            svg.append('text')
+                .attr('x', chartWidth / 2)
+                .attr('y', 15)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '14px')
+                .attr('fill', '#00ffff')
+                .text('Character Conflict Network');
+        }
+
+        function updateGoalNetworkChart(chartData = data, containerId = 'goal-network-chart', width = 450, height = 300) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            if (!chartData || !chartData.books) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #00ffff;">No goal data available</div>';
+                return;
             }
 
-            function dragged(event, d) {
-                d.fx = event.x;
-                d.fy = event.y;
+            // Build character-goal network from books data
+            const characterGoals = {};
+            const goalCategories = new Set();
+            
+            chartData.books.forEach(book => {
+                if (book.goals) {
+                    book.goals.forEach(goal => {
+                        if (goal.character && goal.category) {
+                            if (!characterGoals[goal.character]) {
+                                characterGoals[goal.character] = {};
+                            }
+                            characterGoals[goal.character][goal.category] = 
+                                (characterGoals[goal.character][goal.category] || 0) + 1;
+                            goalCategories.add(goal.category);
+                        }
+                    });
+                }
+            });
+
+            if (Object.keys(characterGoals).length === 0) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #00ffff;">No character-goal relationships found</div>';
+                return;
             }
 
-            function dragended(event, d) {
-                if (!event.active) simulation.alphaTarget(0);
-                d.fx = null;
-                d.fy = null;
-            }
+            const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+            const chartWidth = width;
+            const chartHeight = height;
+
+            const svg = d3.select(container)
+                .append('svg')
+                .attr('width', chartWidth)
+                .attr('height', chartHeight);
+
+            // Create nodes and links
+            const nodes = [];
+            const links = [];
+
+            // Add character nodes
+            Object.keys(characterGoals).forEach(character => {
+                nodes.push({ id: character, type: 'character', size: 20 });
+            });
+
+            // Add goal category nodes and links
+            Array.from(goalCategories).forEach(category => {
+                nodes.push({ id: category, type: 'goal', size: 15 });
+                
+                Object.keys(characterGoals).forEach(character => {
+                    if (characterGoals[character][category]) {
+                        links.push({
+                            source: character,
+                            target: category,
+                            weight: characterGoals[character][category]
+                        });
+                    }
+                });
+            });
+
+            const simulation = d3.forceSimulation(nodes)
+                .force('link', d3.forceLink(links).id(d => d.id).distance(80))
+                .force('charge', d3.forceManyBody().strength(-200))
+                .force('center', d3.forceCenter(chartWidth / 2, chartHeight / 2));
+
+            // Add links
+            const link = svg.append('g')
+                .selectAll('line')
+                .data(links)
+                .enter()
+                .append('line')
+                .attr('stroke', '#00ffff')
+                .attr('stroke-opacity', 0.6)
+                .attr('stroke-width', d => Math.sqrt(d.weight));
+
+            // Add nodes
+            const node = svg.append('g')
+                .selectAll('circle')
+                .data(nodes)
+                .enter()
+                .append('circle')
+                .attr('r', d => d.size)
+                .attr('fill', d => d.type === 'character' ? '#ff69b4' : '#00ffff')
+                .attr('stroke', '#ffff00')
+                .attr('stroke-width', 2);
+
+            // Add labels
+            const labels = svg.append('g')
+                .selectAll('text')
+                .data(nodes)
+                .enter()
+                .append('text')
+                .attr('dy', -3)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '9px')
+                .attr('fill', '#00ffff')
+                .text(d => d.id);
+
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node
+                    .attr('cx', d => d.x)
+                    .attr('cy', d => d.y);
+
+                labels
+                    .attr('x', d => d.x)
+                    .attr('y', d => d.y);
+            });
+
+            // Add title
+            svg.append('text')
+                .attr('x', chartWidth / 2)
+                .attr('y', 15)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '14px')
+                .attr('fill', '#00ffff')
+                .text('Character-Goal Network');
         }
 
         function updateSceneSelector() {

@@ -15,7 +15,9 @@ def prepare_visualization_data(results_dict):
         "books": [],
         "characters": {},
         "character_books": {},
-        "conflict_network": []
+        "conflict_network": [],
+        "goals": [],  # Flattened goals for static HTML compatibility
+        "goal_network": []  # Goal network data
     }
     
     all_characters = set()

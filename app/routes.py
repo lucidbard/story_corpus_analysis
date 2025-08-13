@@ -4,6 +4,7 @@ import json
 import time
 import os
 import sys
+from datetime import datetime
 
 # Add parent directory to path for module imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -96,7 +97,24 @@ def test_ollama():
 def list_results():
     results_dir = os.getcwd()
     files = [f for f in os.listdir(results_dir) if f.endswith('_visualization.json')]
-    return jsonify(files)
+    results = []
+    for filename in files:
+        filepath = os.path.join(results_dir, filename)
+        try:
+            stat = os.stat(filepath)
+            modified = datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M')
+            results.append({
+                'name': filename,
+                'modified': modified,
+                'size': stat.st_size
+            })
+        except:
+            results.append({
+                'name': filename,
+                'modified': 'Unknown',
+                'size': 0
+            })
+    return jsonify(results)
 
 # Preview a result file
 @app.route('/preview_result')
